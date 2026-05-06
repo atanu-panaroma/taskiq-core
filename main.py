@@ -2,12 +2,13 @@ import asyncio
 
 from src.config.redis import redis_client
 from src.config.taskiq_broker import broker
-from src.tasks import mock_llm_call
+from src.tasks import llm_call
 
 
 async def main():
     job_id = "pis2026"
-    tasks = range(1, 4)
+    tasks = range(1, 10)
+
     await broker.startup()
 
     await redis_client.set(f"job:{job_id}:status", "pending")
@@ -15,7 +16,7 @@ async def main():
     await redis_client.set(f"job:{job_id}:done", 0)
 
     for id in tasks:
-        await mock_llm_call.kiq(job_id=job_id, task_id=f"{job_id}:task{id}")  # type: ignore
+        await llm_call.kiq(job_id=job_id, task_id=f"{job_id}:task{id}")
 
     return
 
